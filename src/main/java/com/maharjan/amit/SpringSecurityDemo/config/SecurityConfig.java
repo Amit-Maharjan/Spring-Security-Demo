@@ -1,5 +1,6 @@
 package com.maharjan.amit.SpringSecurityDemo.config;
 
+import com.maharjan.amit.SpringSecurityDemo.filters.JWTFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,12 +19,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity // This says: Don't go with the default flow. Follow the flow mention below
 public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JWTFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,6 +41,7 @@ public class SecurityConfig {
         // http.formLogin(Customizer.withDefaults()); // This is for working with browser
         http.httpBasic(Customizer.withDefaults()); // This is for working with REST Clients like Postman
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Cannot use the application with browser because with each request new session will be generated
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
